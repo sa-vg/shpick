@@ -3,7 +3,8 @@ function Test-Cmdlet {
     param (
         [string] $Name,
         [int] $IntValue,
-        [System.DateTime] $Date
+        [System.DateTime] $Date,
+        [System.Diagnostics.Process] $Process
     )
     
     begin {
@@ -12,7 +13,7 @@ function Test-Cmdlet {
     
     process {
 
-        Write-Host "Name: $Name IntValue: $IntValue Date: $Date"
+        Write-Host "Name: $Name IntValue: $IntValue Date: $Date Process $Process"
     }
     
     end {
@@ -20,8 +21,4 @@ function Test-Cmdlet {
     }
 }
 
-$parameters = Test-Cmdlet | Get-Command 
-
-$p = @{}
-Test-Cmdlet @p
 

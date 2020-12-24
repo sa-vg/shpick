@@ -1,10 +1,26 @@
 Add-Type -AssemblyName PresentationCore, PresentationFramework
+function Dump([object] $obj) {
+    Write-Debug "$obj"
+}
+function Dump([object] $obj, [string] $message) {
+    Write-Debug "$message : $obj"
+}
 
-class TB {
+function Dump([object[]] $objects) {
+    foreach ($obj in $objects) {
+        Write-Debug "$obj [$($obj.GetType())]"
+    }
+}
+
+class PsItem {
+
+}
+
+class PsTextBox: PsItem {
     [String] $Name
     [System.Windows.Controls.TextBox] $Component
 
-    TB([string] $name) {
+    PsTextBox([string] $name) {
         $this.Name = $name
         $this.Component = [System.Windows.Controls.TextBox]::new()
         $this.Component.Name = $name
@@ -12,22 +28,23 @@ class TB {
         $this.Component.Width = 250
     }
 
-    [string] GetResult(){
+    [object] GetResult() {
         $result = $this.Component.Text
+        Dump($result)
         return $result
     }
 
-    [void] LoadValues(){
+    [void] LoadValues() {
         
     }
 }
 
-class CB {
+class PsComboBox: PsItem {
     [String] $Name
     [System.Windows.Controls.ComboBox] $Component
     [ScriptBlock] $Script
 
-    CB([string] $name, [ScriptBlock] $itemsScript) {
+    PsComboBox([string] $name, [ScriptBlock] $itemsScript) {
         $this.Name = $name
         $this.Script = $itemsScript
 
@@ -37,30 +54,39 @@ class CB {
         $this.Component.Width = 250
     }
 
-    [string] GetResult(){
-        $result =  $this.Component.SelectedItem
-        Write-Host $result.GetType()
+    [object] GetResult() {
+        $result = $this.Component.SelectedItem
+        Dump($result)
         return $result
     }
 
-    [void] LoadValues(){
+    [void] LoadValues() {
         $items = $this.Script.Invoke()
-        $items | ForEach-Object {Write-Host $_.GetType()}
+        Dump($items)
         $this.Component.ItemsSource = $items
     }
 }
 
-function CreateButton([string] $name, [ScriptBlock] $clickHandler) {
-    $button = [System.Windows.Controls.Button]::new()
-    $button.Name = "Execute"
-    $button.Content = "Execute"
-    $button.Height = 40
-    $button.Add_Click({$scriptBlock.Invoke()})
-    return $button
+class PsButton: PsItem {
+    [String] $Name
+    [System.Windows.Controls.Button] $Component
+    [ScriptBlock] $Script
+
+    PsButton([string] $name, [ScriptBlock] $script) {
+        Dump("Creating button $name")
+        
+        $this.Name = $name
+        $this.Script = $script
+
+        $this.Component = [System.Windows.Controls.Button]::new()
+        $this.Component.Name = "Execute"
+        $this.Component.Content = "Execute"
+        $this.Component.Height = 40
+    }
 }
 
 function CreateLabeledWrapper([System.Windows.Controls.Control] $control) {
-    Write-Host "Creating line wrapper for $control $($control.Name)"
+    Write-Debug "Creating line wrapper for $control $($control.Name)"
     $line = [System.Windows.Controls.StackPanel]::new()
     $line.Orientation = [System.Windows.Controls.Orientation]::Horizontal
 
@@ -71,4 +97,70 @@ function CreateLabeledWrapper([System.Windows.Controls.Control] $control) {
     $line.AddChild($label)
     $line.AddChild($control)
     return $line
+}
+
+class WindowHolder {
+
+    [System.Windows.Window] $Window
+    [System.Windows.Controls.StackPanel] $ItemsContainer
+    [PsItem[]] $Items
+    
+    WindowHolder([PsItem[]] $items, [PsButton[]] $buttons) {
+        $this.Window = [System.Windows.Window]::new()
+        $this.Window.Height = 400
+        $this.Window.Width = 400
+        $this.ItemsContainer = [System.Windows.Controls.StackPanel]:: new()
+        $this.Window.Content = $this.ItemsContainer
+
+        $this.Items = $items
+        
+        foreach ($item in $items) {
+            $itemLine = CreateLabeledWrapper($item.Component)
+            $this.ItemsContainer.AddChild($itemLine)
+        }
+        foreach ($button in $buttons) {
+            $this.CreateClickHandler($button)
+            $this.ItemsContainer.AddChild($button.Component)
+        }
+
+        $this.PrintMarkup()
+
+        foreach ($item in $items) {
+            $item.LoadValues()
+        }
+    }
+
+    [void] PrintMarkup() {
+        Write-Host "XAML Markup:"
+        $markup = [System.Windows.Markup.XamlWriter]::Save($this.Window)
+        Write-Host $markup
+    }
+
+    hidden [Hashtable] GetResult() {
+        Dump("Collecting constructed parameters...")
+        $result = @{}
+        foreach ($item in $this.Items) {
+            $itemResult = $item.GetResult()
+            Write-Host ($itemResult.GetType()) -ForegroundColor DarkYellow 
+            $result.Add($item.Name, $item.GetResult())       
+        }
+        return $result
+    }
+
+    hidden [void] CreateClickHandler([PsButton] $button) {
+        
+        $w = $this
+        $b = $button
+
+        $handler = {
+            Dump("Invoking hanler for [$($b.Name)], Handler: {$($b.Script)}")
+            $pickedParameters = $w.GetResult()
+            Dump("Parameters:")
+            Dump(( $pickedParameters | Out-String ))
+
+            $b.Script.Invoke($pickedParameters)
+        }.GetNewClosure()
+
+        $button.Component.Add_Click($handler)
+    }
 }

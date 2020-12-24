@@ -1,16 +1,28 @@
 using namespace System.Windows.Control
- 
+
 Add-Type -AssemblyName PresentationCore, PresentationFramework
 
-. ./Classes.ps1
+. ./Controls.ps1
 . ./Test-Cmdlet.ps1
 
-$items = @(
-    [CB]::new("Date", { Get-Date })
-    [TB]::new("Name")
-    [TB]::new("IntValue")
-)
-$result = @{}
-$targetScript = { Test-Cmdlet @result}
+$DebugPreference = "Continue"
 
-& ./ShowWindow.ps1
+# Show-Gui -Item @([PsComboBox]::new("Date", { Get-Date }), [PsComboBox]::new("Process", { Get-Process -Name *powershell* })) -Button @([PsButton]::new("Execute", { param($p) Test-Cmdlet @p }))
+
+function Show-Gui {
+    param (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [PsItem[]] $ComboBox,
+
+        [ValidateNotNullOrEmpty()]
+        [Parameter(Mandatory = $true)]
+        [PsButton[]] $Button
+    )
+    
+   $window = [WindowHolder]::new($Item, $Button)
+   $window.Window.ShowDialog() | Out-Null
+}
+
+
+
