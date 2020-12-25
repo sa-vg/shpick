@@ -141,8 +141,87 @@ class WindowHolder {
         $result = @{}
         foreach ($item in $this.Items) {
             $itemResult = $item.GetResult()
-            Write-Host ($itemResult.GetType()) -ForegroundColor DarkYellow 
-            $result.Add($item.Name, $item.GetResult())       
+            $result.Add($item.Name, $itemResult)       
+        }
+        return $result
+    }
+
+    hidden [void] CreateClickHandler([PsButton] $button) {
+        
+        $w = $this
+        $b = $button
+
+        $handler = {
+            Dump("Invoking hanler for [$($b.Name)], Handler: {$($b.Script)}")
+            $pickedParameters = $w.GetResult()
+            Dump("Parameters:")
+            Dump(( $pickedParameters | Out-String ))
+
+            $b.Script.Invoke($pickedParameters)
+        }.GetNewClosure()
+
+        $button.Component.Add_Click($handler)
+    }
+}
+
+class PsWindow {
+
+    [System.Windows.Window] $Window
+    [System.Windows.Controls.StackPanel] $ItemsContainer
+    [PsItem[]] $Items = @()
+    [PsButton[]] $Buttons = @()
+
+    PsWindow() {
+        $this.Window = [System.Windows.Window]::new()
+        $this.Window.Height = 400
+        $this.Window.Width = 400
+        $this.ItemsContainer = [System.Windows.Controls.StackPanel]:: new()
+        $this.Window.Content = $this.ItemsContainer
+    }
+
+    [PsWindow] AddTextBox([string] $name) {
+        $item = [PsTextBox]::new($name)
+        $item.LoadValues()
+        $itemLine = CreateLabeledWrapper($item.Component)
+        $this.ItemsContainer.AddChild($itemLine)
+        $this.Items += $item;
+        return $this
+    }
+
+    [PsWindow] AddComboBox([string] $name, [ScriptBlock] $script) {
+        $item = [PsComboBox]::new($name, $script)
+        $item.LoadValues()
+        $itemLine = CreateLabeledWrapper($item.Component)
+        $this.ItemsContainer.AddChild($itemLine)
+        $this.Items += $item;
+        return $this
+    }
+    
+    [PsWindow] AddButton([string] $name, [ScriptBlock] $script) {
+        $button = [PsButton]::new($name, $script)
+        $this.CreateClickHandler($button)
+        $this.ItemsContainer.AddChild($button.Component)
+        $this.Buttons += $button;
+        return $this
+    }
+
+    [void] ShowDialog() {
+        $this.Window.ShowDialog() | Out-Null
+    }
+
+
+    [void] PrintMarkup() {
+        Write-Host "XAML Markup:"
+        $markup = [System.Windows.Markup.XamlWriter]::Save($this.Window)
+        Write-Host $markup
+    }
+
+    hidden [Hashtable] GetResult() {
+        Dump("Collecting constructed parameters...")
+        $result = @{}
+        foreach ($item in $this.Items) {
+            $itemResult = $item.GetResult()
+            $result.Add($item.Name, $itemResult)       
         }
         return $result
     }

@@ -7,17 +7,12 @@ Add-Type -AssemblyName PresentationCore, PresentationFramework
 
 $DebugPreference = "Continue"
 
-$controls = @(
-    [PsComboBox]::new("Date", { Get-Date })
-    [PsComboBox]::new("Process", { Get-Process -Name *powershell* })
-    [PsTextBox]::new("Name")
-    [PsTextBox]::new("IntValue")
-)
-
-[PsButton[]] $buttons = @( [PsButton]::new("Execute", { param($p) Test-Cmdlet @p })
-) 
-
-$main = [WindowHolder]::new($controls, $buttons)
-$main.Window.ShowDialog() | Out-Null
+[PsWindow]::new().
+AddComboBox("Date", { Get-Date }).
+AddComboBox("Process", { Get-Process -Name *powershell* }).
+AddTextBox("Name").
+AddTextBox("IntValue").
+AddButton("Execute", { param($p) Test-Cmdlet @p }).
+ShowDialog()
 
 
