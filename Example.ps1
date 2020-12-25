@@ -1,5 +1,4 @@
 using namespace System.Windows.Control
-
 Add-Type -AssemblyName PresentationCore, PresentationFramework
 
 . ./Controls.ps1
@@ -8,11 +7,11 @@ Add-Type -AssemblyName PresentationCore, PresentationFramework
 $DebugPreference = "Continue"
 
 [PsWindow]::new().
-AddComboBox("Date", { Get-Date }).
-AddComboBox("Process", { Get-Process -Name *powershell* }).
-AddTextBox("Name").
-AddTextBox("IntValue").
-AddButton("Execute", { param($p) Test-Cmdlet @p }).
+ComboBox("Date", { Get-Date }).
+ComboBox("Process", { Get-Process -Name *powershell* }).
+TextBox("Name").
+TextBox("IntValue").
+Button("Execute", { param($p) Test-Cmdlet @p }).
 ShowDialog()
 
 

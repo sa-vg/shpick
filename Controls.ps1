@@ -1,4 +1,5 @@
 Add-Type -AssemblyName PresentationCore, PresentationFramework
+
 function Dump([object] $obj) {
     Write-Debug "$obj"
 }
@@ -114,7 +115,7 @@ class PsWindow {
         $this.Window.Content = $this.ItemsContainer
     }
 
-    [PsWindow] AddTextBox([string] $name) {
+    [PsWindow] TextBox([string] $name) {
         $item = [PsTextBox]::new($name)
         $item.LoadValues()
         $itemLine = CreateLabeledWrapper($item.Component)
@@ -123,7 +124,7 @@ class PsWindow {
         return $this
     }
 
-    [PsWindow] AddComboBox([string] $name, [ScriptBlock] $script) {
+    [PsWindow] ComboBox([string] $name, [ScriptBlock] $script) {
         $item = [PsComboBox]::new($name, $script)
         $item.LoadValues()
         $itemLine = CreateLabeledWrapper($item.Component)
@@ -132,7 +133,7 @@ class PsWindow {
         return $this
     }
     
-    [PsWindow] AddButton([string] $name, [ScriptBlock] $script) {
+    [PsWindow] Button([string] $name, [ScriptBlock] $script) {
         $button = [PsButton]::new($name, $script)
         $this.CreateClickHandler($button)
         $this.ItemsContainer.AddChild($button.Component)
