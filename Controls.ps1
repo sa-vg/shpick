@@ -25,7 +25,7 @@ class PsTextBox: PsItem {
         $this.Name = $name
         $this.Component = [System.Windows.Controls.TextBox]::new()
         $this.Component.Name = $name
-        $this.Component.Height = 40
+        $this.Component.Height = 30
         $this.Component.Width = 250
     }
 
@@ -34,10 +34,6 @@ class PsTextBox: PsItem {
         Dump($result)
         return $result
     }
-
-    [void] LoadValues() {
-        
-    }
 }
 
 class PsComboBox: PsItem {
@@ -45,26 +41,29 @@ class PsComboBox: PsItem {
     [System.Windows.Controls.ComboBox] $Component
     [ScriptBlock] $Script
 
-    PsComboBox([string] $name, [ScriptBlock] $itemsScript) {
+    PsComboBox([string] $name, [ScriptBlock] $itemsScript, [string] $displayMember) {
         $this.Name = $name
         $this.Script = $itemsScript
 
         $this.Component = [System.Windows.Controls.ComboBox]::new()
         $this.Component.Name = $name
-        $this.Component.Height = 40
+        $this.Component.Height = 30
         $this.Component.Width = 250
+
+        $items = $this.Script.Invoke()
+        Write-Host "Loading values for $($this.Name)"
+        Write-Host $items
+        $this.Component.ItemsSource = $items
+
+        if($displayMember){
+            $this.Component.DisplayMemberPath = $displayMember
+        }      
     }
 
     [object] GetResult() {
         $result = $this.Component.SelectedItem
         Dump($result)
         return $result
-    }
-
-    [void] LoadValues() {
-        $items = $this.Script.Invoke()
-        Dump($items)
-        $this.Component.ItemsSource = $items
     }
 }
 
@@ -82,12 +81,12 @@ class PsButton: PsItem {
         $this.Component = [System.Windows.Controls.Button]::new()
         $this.Component.Name = "Execute"
         $this.Component.Content = "Execute"
-        $this.Component.Height = 40
+        $this.Component.Height = 30
     }
 }
 
-function CreateLabeledWrapper([System.Windows.Controls.Control] $control) {
-    Write-Debug "Creating line wrapper for $control $($control.Name)"
+function WrapLine([System.Windows.Controls.Control] $control) {
+    Dump("Creating line wrapper for $control $($control.Name)")
     $line = [System.Windows.Controls.StackPanel]::new()
     $line.Orientation = [System.Windows.Controls.Orientation]::Horizontal
 
@@ -110,24 +109,26 @@ class PsWindow {
     PsWindow() {
         $this.Window = [System.Windows.Window]::new()
         $this.Window.Height = 400
-        $this.Window.Width = 400
+        $this.Window.Width = 600
         $this.ItemsContainer = [System.Windows.Controls.StackPanel]:: new()
         $this.Window.Content = $this.ItemsContainer
     }
 
     [PsWindow] TextBox([string] $name) {
         $item = [PsTextBox]::new($name)
-        $item.LoadValues()
-        $itemLine = CreateLabeledWrapper($item.Component)
+        $itemLine = WrapLine($item.Component)
         $this.ItemsContainer.AddChild($itemLine)
         $this.Items += $item;
         return $this
     }
 
     [PsWindow] ComboBox([string] $name, [ScriptBlock] $script) {
-        $item = [PsComboBox]::new($name, $script)
-        $item.LoadValues()
-        $itemLine = CreateLabeledWrapper($item.Component)
+        return $this.ComboBox($name, $script, $null)
+    }
+
+    [PsWindow] ComboBox([string] $name, [ScriptBlock] $script, [string] $displayMember) {
+        $item = [PsComboBox]::new($name, $script, $displayMember)
+        $itemLine = WrapLine($item.Component)
         $this.ItemsContainer.AddChild($itemLine)
         $this.Items += $item;
         return $this
