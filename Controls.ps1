@@ -201,7 +201,8 @@ class PsWindow {
             Dump("Parameters:")
             Dump(( $pickedParameters | Out-String ))
 
-            $b.Script.Invoke($pickedParameters)
+            Write-Output $pickedParameters
+            #$b.Script.Invoke($pickedParameters)
         }.GetNewClosure()
 
         $button.Component.Add_Click($handler)
