@@ -4,7 +4,8 @@ function Test-Cmdlet {
         [string] $Name,
         [int] $IntValue,
         [System.DateTime] $Date,
-        [System.Diagnostics.Process] $Process
+        [System.Diagnostics.Process] $Process,
+        [switch] $Toggle
     )
     
     begin {
@@ -13,7 +14,7 @@ function Test-Cmdlet {
     
     process {
 
-        Write-Host "Name: $Name IntValue: $IntValue Date: $Date Process $Process"
+        Write-Host "Name: $Name IntValue: $IntValue Date: $Date Process $Process Toggle: $Toggle"
     }
     
     end {

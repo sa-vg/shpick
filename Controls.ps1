@@ -36,6 +36,25 @@ class PsTextBox: PsItem {
     }
 }
 
+class PsCheckBox: PsItem {
+    [String] $Name
+    [System.Windows.Controls.CheckBox] $Component
+
+    PsCheckBox([string] $name) {
+        $this.Name = $name
+        $this.Component = [System.Windows.Controls.CheckBox]::new()
+        $this.Component.Name = $name
+        $this.Component.Height = 30
+        $this.Component.Width = 250
+    }
+
+    [object] GetResult() {
+        $result = $this.Component.IsChecked
+        Dump($result)
+        return $result
+    }
+}
+
 class PsComboBox: PsItem {
     [String] $Name
     [System.Windows.Controls.ComboBox] $Component
@@ -116,6 +135,14 @@ class PsWindow {
 
     [PsWindow] TextBox([string] $name) {
         $item = [PsTextBox]::new($name)
+        $itemLine = WrapLine($item.Component)
+        $this.ItemsContainer.AddChild($itemLine)
+        $this.Items += $item;
+        return $this
+    }
+    
+    [PsWindow] CheckBox([string] $name) {
+        $item = [PsCheckBox]::new($name)
         $itemLine = WrapLine($item.Component)
         $this.ItemsContainer.AddChild($itemLine)
         $this.Items += $item;

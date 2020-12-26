@@ -11,6 +11,7 @@ ComboBox("Date", { Get-Date }).
 ComboBox("Process",  { Get-Process -Name *powershell* }, "Name").
 TextBox("Name").
 TextBox("IntValue").
+CheckBox("Toggle").
 Button("Execute", { param($p) Test-Cmdlet @p }).
 ShowDialog()
 
