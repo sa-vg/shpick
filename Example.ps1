@@ -4,7 +4,7 @@ Add-Type -AssemblyName PresentationCore, PresentationFramework
 . ./Controls.ps1
 . ./Test-Cmdlet.ps1
 
-#$DebugPreference = "Continue"
+$DebugPreference = "Continue"
 #$DebugPreference = "SilentlyContinue"
 
 [PsWindow]::new().
@@ -13,7 +13,7 @@ ComboBox("Process",  { Get-Process -Name *powershell* }, "Name").
 TextBox("Name").
 TextBox("IntValue").
 CheckBox("Toggle").
-Button("Execute", { param($p) Test-Cmdlet @p }).
-ShowDialog() | Write-Host | Test-Cmdlet
+ShowDialog() | Test-Cmdlet  
+#| % { Test-Cmdlet @_ }
 
 

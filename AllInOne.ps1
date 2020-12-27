@@ -1,5 +1,7 @@
+﻿
 using namespace System.Windows.Control
 Add-Type -AssemblyName PresentationCore, PresentationFramework
+
 
 function Dump([object] $obj) {
     Write-Debug "$obj"
@@ -171,9 +173,20 @@ class PsWindow {
 
     [void] ShowDialog() {
         $this.AddExecuteButton()
-        $this.Window.Show()
+        $this.Window.ShowDialog()
     }
 
+    [void] StartPipeline() {
+        $this.AddExecuteButton()
+
+        $this.Window.Show()
+        
+        while($true){
+        Write-Output "lalala"
+        Start-Sleep 1000
+        }
+
+    }
 
     [void] PrintMarkup() {
         Write-Host "XAML Markup:"
@@ -242,5 +255,5 @@ ComboBox("Process",  { Get-Process -Name *powershell* }, "Name").
 TextBox("Name").
 TextBox("IntValue").
 CheckBox("Toggle").
-ShowDialog() | Test-Cmdlet  
+StartPipeline() | Write-Host | Test-Cmdlet  
 #| % { Test-Cmdlet @_ }
