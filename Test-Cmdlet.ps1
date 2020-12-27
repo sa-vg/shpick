@@ -13,7 +13,8 @@ function Test-Cmdlet {
     }
     
     process {
-        Write-Host "[Processing] Name: $Name IntValue: $IntValue Date: $Date Process $Process Toggle: $Toggle" -ForegroundColor Magenta
+
+        Write-Host "Name: $Name IntValue: $IntValue Date: $Date Process $Process Toggle: $Toggle"
     }
     
     end {
