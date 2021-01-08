@@ -74,7 +74,7 @@ class PsComboBox: PsItem {
         Write-Host $items
         $this.Component.ItemsSource = $items
 
-        if($displayMember){
+        if ($displayMember) {
             $this.Component.DisplayMemberPath = $displayMember
         }      
     }
@@ -122,6 +122,9 @@ class PsWindow {
 
     [System.Windows.Window] $Window
     [System.Windows.Controls.StackPanel] $ItemsContainer
+
+    [System.Collections.Concurrent.BlockingCollection[Hashtable]] $Requests = [System.Collections.Concurrent.BlockingCollection[Hashtable]]::new()
+    [System.Threading.CancellationTokenSource] $RequestsLifetime = [System.Threading.CancellationTokenSource]:: new()
     [PsItem[]] $Items = @()
     [PsButton[]] $Buttons = @()
 
@@ -131,6 +134,7 @@ class PsWindow {
         $this.Window.Width = 600
         $this.ItemsContainer = [System.Windows.Controls.StackPanel]:: new()
         $this.Window.Content = $this.ItemsContainer
+        $this.Window.Add_Closing($this.OnWindowClose)
     }
 
     [PsWindow] TextBox([string] $name) {
@@ -173,6 +177,21 @@ class PsWindow {
         $this.Window.ShowDialog() | Out-Null
     }
 
+    [System.Collections.IEnumerable] GetOutput() {
+    
+        $guiThread = Start-ThreadJob -ScriptBlock {
+            Dump("Opening window in another thread.")
+            $this.Window.ShowDialog() 
+        }
+
+        return $this.Requests.GetConsumingEnumerable($this.RequestsLifetime.Token)
+    }
+
+    [void] OnWindowClose([object] $s, [object] $a) {
+        Dump("Window close event received.")
+        $this.RequestsLifetime.Cancel()
+        $this.Requests.Dispose()
+    }
 
     [void] PrintMarkup() {
         Write-Host "XAML Markup:"
@@ -187,7 +206,18 @@ class PsWindow {
             $itemResult = $item.GetResult()
             $result.Add($item.Name, $itemResult)       
         }
+        
+        Dump("Parameters:")
+        Dump(( $result | Out-String ))
+        
         return $result
+    }
+    
+    hidden [void] HandleClickToPipeline() {
+        Dump("Invoking hanler for pipeline.")
+        $pickedParameters = $this.GetResult()
+        $this.Requests.Add($pickedParameters)
+        # Write-Output $pickedParameters -NoEnumerate
     }
 
     hidden [void] CreateClickHandler([PsButton] $button) {
@@ -198,9 +228,6 @@ class PsWindow {
         $handler = {
             Dump("Invoking hanler for [$($b.Name)], Handler: {$($b.Script)}")
             $pickedParameters = $w.GetResult()
-            Dump("Parameters:")
-            Dump(( $pickedParameters | Out-String ))
-
             $b.Script.Invoke($pickedParameters)
         }.GetNewClosure()
 

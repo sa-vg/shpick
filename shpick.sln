@@ -1,8 +1,22 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shpick.Models", "Shpick.Models\Shpick.Models.csproj", "{C74D640C-50BD-43AF-9951-00C6FC9FB7A4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shpick.Wpf", "Shpick.Wpf\Shpick.Wpf.csproj", "{948E0441-C2EA-44B4-AD81-FDDA9B65BEAD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C74D640C-50BD-43AF-9951-00C6FC9FB7A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C74D640C-50BD-43AF-9951-00C6FC9FB7A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C74D640C-50BD-43AF-9951-00C6FC9FB7A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C74D640C-50BD-43AF-9951-00C6FC9FB7A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{948E0441-C2EA-44B4-AD81-FDDA9B65BEAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{948E0441-C2EA-44B4-AD81-FDDA9B65BEAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{948E0441-C2EA-44B4-AD81-FDDA9B65BEAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{948E0441-C2EA-44B4-AD81-FDDA9B65BEAD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
