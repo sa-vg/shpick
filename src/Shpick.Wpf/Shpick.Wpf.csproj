@@ -59,9 +59,6 @@
       </ProjectReference>
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="Controls" />
-    </ItemGroup>
-    <ItemGroup>
       <Content Include="bin\Debug\controls.ps1" />
       <Content Include="bin\Debug\example.ps1" />
     </ItemGroup>
