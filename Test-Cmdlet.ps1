@@ -21,18 +21,18 @@ function Test-Cmdlet {
     }
 }
 
-$testData1 = @{
-    Name = "TestName"
-    IntValue = "555"
-    Date = Get-Date
-    Toggle = $null
-}
+# $testData1 = @{
+#     Name = "TestName"
+#     IntValue = "555"
+#     Date = Get-Date
+#     Toggle = $null
+# }
 
-$testData2 = @{
-    Name = "TestName2"
-    IntValue = "444"
-    Date = Get-Date
-    Toggle = $true
-}
+# $testData2 = @{
+#     Name = "TestName2"
+#     IntValue = "444"
+#     Date = Get-Date
+#     Toggle = $true
+# }
 
-@($testData1, $testData2, $testData1) | % { Test-Cmdlet @_}
+# @($testData1, $testData2, $testData1) | % { Test-Cmdlet @_}

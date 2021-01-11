@@ -90,11 +90,13 @@ class PsComboBox: PsItem {
 class PsButton: PsItem {
     [String] $Name
     [System.Windows.Controls.Button] $Component
+    [ScriptBlock] $Script
 
-    PsButton([string] $name) {
+    PsButton([string] $name, [ScriptBlock] $script) {
         Dump("Creating button $name")
         
         $this.Name = $name
+        $this.Script = $script
 
         $this.Component = [System.Windows.Controls.Button]::new()
         $this.Component.Name = "Execute"
@@ -121,7 +123,11 @@ class PsWindow {
 
     [System.Windows.Window] $Window
     [System.Windows.Controls.StackPanel] $ItemsContainer
+
+    [System.Collections.Concurrent.BlockingCollection[Hashtable]] $Requests = [System.Collections.Concurrent.BlockingCollection[Hashtable]]::new()
+    [System.Threading.CancellationTokenSource] $RequestsLifetime = [System.Threading.CancellationTokenSource]:: new()
     [PsItem[]] $Items = @()
+    [PsButton[]] $Buttons = @()
 
     PsWindow() {
         $this.Window = [System.Windows.Window]::new()
@@ -129,6 +135,7 @@ class PsWindow {
         $this.Window.Width = 600
         $this.ItemsContainer = [System.Windows.Controls.StackPanel]:: new()
         $this.Window.Content = $this.ItemsContainer
+        $this.Window.Add_Closing($this.OnWindowClose)
     }
 
     [PsWindow] TextBox([string] $name) {
@@ -159,21 +166,33 @@ class PsWindow {
         return $this
     }
     
-    [PsWindow] AddExecuteButton() {
-        $button = [PsButton]::new("Execute")
-        
+    [PsWindow] Button([string] $name, [ScriptBlock] $script) {
+        $button = [PsButton]::new($name, $script)
+        $this.CreateClickHandler($button)
         $this.ItemsContainer.AddChild($button.Component)
-        $handler = $this.CreateClickHandler($button)
-        $button.Component.Add_Click({Write-Output "Shittttt"})
-        $button.Component.Add_Click($handler)
+        $this.Buttons += $button;
         return $this
     }
 
     [void] ShowDialog() {
-        $this.AddExecuteButton()
-        $this.Window.Show()
+        $this.Window.ShowDialog() | Out-Null
     }
 
+    [System.Collections.IEnumerable] GetOutput() {
+    
+        $guiThread = Start-ThreadJob -ScriptBlock {
+            Dump("Opening window in another thread.")
+            $this.Window.ShowDialog() 
+        }
+
+        return $this.Requests.GetConsumingEnumerable($this.RequestsLifetime.Token)
+    }
+
+    [void] OnWindowClose([object] $s, [object] $a) {
+        Dump("Window close event received.")
+        $this.RequestsLifetime.Cancel()
+        $this.Requests.Dispose()
+    }
 
     [void] PrintMarkup() {
         Write-Host "XAML Markup:"
@@ -188,10 +207,21 @@ class PsWindow {
             $itemResult = $item.GetResult()
             $result.Add($item.Name, $itemResult)       
         }
+        
+        Dump("Parameters:")
+        Dump(( $result | Out-String ))
+        
         return $result
     }
+    
+    hidden [void] HandleClickToPipeline() {
+        Dump("Invoking hanler for pipeline.")
+        $pickedParameters = $this.GetResult()
+        $this.Requests.Add($pickedParameters)
+        # Write-Output $pickedParameters -NoEnumerate
+    }
 
-    hidden [object] CreateClickHandler([PsButton] $button) {
+    hidden [void] CreateClickHandler([PsButton] $button) {
         
         $w = $this
         $b = $button
@@ -202,45 +232,11 @@ class PsWindow {
             Dump("Parameters:")
             Dump(( $pickedParameters | Out-String ))
 
-            Write-Output $pickedParameters
+            #Write-Output $pickedParameters
             #$PSCmdlet.WriteObject($pickedParameters)
+            $b.Script.Invoke($pickedParameters)
         }.GetNewClosure()
 
-        return $handler
+        $button.Component.Add_Click($handler)
     }
 }
-
-function Test-Cmdlet {
-    [CmdletBinding()]
-    param (
-        [string] $Name,
-        [int] $IntValue,
-        [System.DateTime] $Date,
-        [System.Diagnostics.Process] $Process,
-        [switch] $Toggle
-    )
-    
-    begin {
-        Write-Host "[begin] Name: $Name IntValue: $IntValue Date: $Date Process $Process Toggle: $Toggle" -ForegroundColor Magenta
-    }
-    
-    process {
-        Write-Host "[Processing] Name: $Name IntValue: $IntValue Date: $Date Process $Process Toggle: $Toggle" -ForegroundColor Magenta
-    }
-    
-    end {
-        Write-Host "[end] Name: $Name IntValue: $IntValue Date: $Date Process $Process Toggle: $Toggle" -ForegroundColor Magenta
-    }
-}
-
-$DebugPreference = "Continue"
-#$DebugPreference = "SilentlyContinue"
-
-[PsWindow]::new().
-ComboBox("Date", { Get-Date }).
-ComboBox("Process",  { Get-Process -Name *powershell* }, "Name").
-TextBox("Name").
-TextBox("IntValue").
-CheckBox("Toggle").
-ShowDialog() | Test-Cmdlet  
-#| % { Test-Cmdlet @_ }
