@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Windows.Controls;
+using Shpick.Models;
 
 namespace Shpick.Wpf
 {
-    internal interface IParameterControl
+    internal interface IControlHolder
     {
         public Control Control { get; }
-        public Object GetParameter();
+    }
+    
+    internal interface IParameterControl: IControlHolder, IParameterProvider
+    {
     }
 
     class TextBoxParameterControl : IParameterControl
@@ -23,8 +27,8 @@ namespace Shpick.Wpf
             return _textBox.Text;
         }
     }
-    
-    class CheckBoxParameterControl : IParameterControl
+
+    internal class CheckBoxParameterControl : IParameterControl
     {
         private readonly CheckBox _checkBox;
 
@@ -38,6 +42,21 @@ namespace Shpick.Wpf
         public object GetParameter()
         {
             return _checkBox.IsChecked;
+        }
+    }
+    
+    internal class ComboBoxParameterControl : IParameterControl
+    {
+        private readonly ComboBox _comboBox;
+        public Control Control => _comboBox;
+        public ComboBoxParameterControl(ComboBox control)
+        {
+            _comboBox = control ?? throw new ArgumentNullException(nameof(control));
+        }
+        
+        public object GetParameter()
+        {
+            return _comboBox.SelectedItem;
         }
     }
 }

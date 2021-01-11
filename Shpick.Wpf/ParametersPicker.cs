@@ -1,35 +1,34 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
 using Shpick.Models;
 
 namespace Shpick.Wpf
 {
-    public class ParametersPicker : IParametersPicker
+    //TODO: to common with avalonia
+    public class ParametersPicker
     {
-        private readonly IParameterSpec[] _parameterSpecs;
-        private BlockingCollection<Hashtable> _pickedParameters = new();
-        private IParameterControl[] _providers;
-        private WindowContainer _window;
+        private readonly ParameterStream _output;
+        private readonly Dictionary<string, IParameterProvider> _parameterProviders = new();
 
-        public ParametersPicker(IParameterSpec[] parameterSpecs)
+        public ParametersPicker(IParameterSpec[] specs, ParameterStream outputStream)
         {
-            _parameterSpecs = parameterSpecs;
-        }
+            if (specs == null) throw new ArgumentNullException(nameof(specs));
+            _output = outputStream ?? throw new ArgumentNullException(nameof(outputStream));
 
-        public void ShowWindow()
-        {
             try
             {
-                _providers = _parameterSpecs.Select(ParameterProviderFactory.Create).ToArray();
-                var controls = _providers.Select(x => x.Control).ToArray();
-                _window = new WindowContainer(controls);
-                _window.Button.Click += ButtonOnClick;
-                _window.Window.Closed += WindowOnClosed;
-                _window.Window.ShowDialog();
+                var window = new ParametersWindow(onWindowClose: Close);
+                foreach (var parameterSpec in specs)
+                {
+                    var parameterProvider = window.AddControl(parameterSpec);
+                    _parameterProviders.Add(parameterSpec.Name, parameterProvider);
+                }
+                
+                window.AddButton(onClickHandler: PushParameters);
+                
+                window.ShowDialog();
             }
             catch (Exception e)
             {
@@ -38,52 +37,20 @@ namespace Shpick.Wpf
             }
         }
 
-        private void WindowOnClosed(object sender, EventArgs e)
+
+        private void Close()
         {
-            try
-            {
-                Console.WriteLine("Closing Window");
-                _pickedParameters.CompleteAdding();
-                _pickedParameters.Dispose();
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-                throw;
-            }
+            _output.Close();
         }
 
-        private void ButtonOnClick(object sender, RoutedEventArgs e)
+        private void PushParameters()
         {
-            try
-            {
-                var parameters = GetParameterSet();
-                _pickedParameters.Add(parameters);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-                throw;
-            }
-        }
+            var parameters = new Hashtable();
+            
+            foreach (var (name, provider) in _parameterProviders.Select(x=> (x.Key, x.Value))) 
+                parameters.Add(name, provider.GetParameter());
 
-        private Hashtable GetParameterSet()
-        {
-            return new Hashtable(_providers.ToDictionary(x => x.Control.Name, x => x.GetParameter()));
-        }
-
-
-        public IEnumerable<Hashtable> GetParameters()
-        {
-            try
-            {
-                return _pickedParameters.GetConsumingEnumerable();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            _output.Write(parameters);
         }
     }
 }
