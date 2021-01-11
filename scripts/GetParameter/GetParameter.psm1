@@ -1,5 +1,5 @@
-﻿Add-Type -Path ".\src\Shpick.Wpf\bin\Debug\Shpick.Wpf.dll"
-Add-Type -Path ".\src\Shpick.Wpf\bin\Debug\Shpick.Models.dll"
+﻿Add-Type -Path ".\Shpick.Wpf.dll"
+Add-Type -Path ".\Shpick.Models.dll"
 
 #TODO: to cmdlets
 function CheckBox()
@@ -38,7 +38,7 @@ function ComboBox()
         DisplayMemberPath = $DisplayMemberPath}
 }
 
-function Get-Parameters
+function Get-Parameter
 {
     param (
         [Parameter(Position = 1)]

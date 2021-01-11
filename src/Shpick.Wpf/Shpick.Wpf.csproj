@@ -58,17 +58,17 @@
         <Name>Shpick.Models</Name>
       </ProjectReference>
     </ItemGroup>
-    <ItemGroup>
-      <Content Include="bin\Debug\controls.ps1" />
-      <Content Include="bin\Debug\example.ps1" />
-    </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.
     <Target Name="BeforeBuild">
     </Target>
-    <Target Name="AfterBuild">
-    </Target>
+    
     -->
-
+    <ItemGroup>
+        <Dlls Include="$(TargetDir)*.dll"/>
+    </ItemGroup>
+    <Target Name="AfterBuild">
+        <Copy SourceFiles="@(Dlls)" DestinationFolder="$(SolutionDir)\scripts\GetParameter"/>
+    </Target>
 </Project>
