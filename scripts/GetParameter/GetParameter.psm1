@@ -1,8 +1,8 @@
-﻿Add-Type -Path ".\Shpick.Wpf.dll"
-Add-Type -Path ".\Shpick.Models.dll"
+﻿Add-Type -Path "$PSScriptRoot\Shpick.Wpf.dll"
+Add-Type -Path "$PSScriptRoot\Shpick.Models.dll"
 
 #TODO: to cmdlets
-function CheckBox()
+function New-CheckBox()
 {
     [OutputType([Shpick.Models.IParameterSpec])]
     param(
@@ -12,7 +12,7 @@ function CheckBox()
     return [Shpick.Models.CheckBoxSpec]@{ Name = $name }
 }
 
-function TextBox()
+function New-TextBox()
 {
     [OutputType([Shpick.Models.IParameterSpec])]
     param(
@@ -22,7 +22,7 @@ function TextBox()
     return [Shpick.Models.TextBoxSpec]@{ Name = $name }
 }
 
-function ComboBox()
+function New-ComboBox()
 {
     [OutputType([Shpick.Models.IParameterSpec])]
     param(

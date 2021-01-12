@@ -1,13 +1,13 @@
 ﻿$DebugPreference = "Continue"
 $ErrorActionPreference = "Stop"
 
-Import-Module ./GetParameter.psm1
-Import-Module ./Test-Cmdlet.ps1
+Import-Module $PSScriptRoot/GetParameter.psm1
+Import-Module $PSScriptRoot/Test-Cmdlet.ps1
 
 Get-Parameter @(
-CheckBox "Toggle"
-TextBox "Name"
-TextBox "IntValue"
-#ComboBox "Date" -ItemsSource { Get-Date }
-ComboBox "Process" -DisplayMemberPath "Name" -ItemsSource { Get-Process -Name *powershell* }
-) | % { Test-Cmdlet @_ }
+New-CheckBox "Toggle"
+New-TextBox "Name"
+New-TextBox "IntValue"
+#New-ComboBox "Date" -ItemsSource { Get-Date }
+New-ComboBox "Process" -DisplayMemberPath "Name" -ItemsSource { Get-Process -Name *powershell* }
+) | foreach { Test-Cmdlet @_ }

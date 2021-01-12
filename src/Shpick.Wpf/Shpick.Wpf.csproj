@@ -9,7 +9,7 @@
         <AppDesignerFolder>Properties</AppDesignerFolder>
         <RootNamespace>Shpick.Wpf</RootNamespace>
         <AssemblyName>Shpick.Wpf</AssemblyName>
-        <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+        <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
         <LangVersion>9</LangVersion>
         <Nullable>enable</Nullable>
@@ -66,9 +66,9 @@
     
     -->
     <ItemGroup>
-        <Dlls Include="$(TargetDir)*.dll"/>
+        <Dlls Include="$(TargetDir)*.dll" />
     </ItemGroup>
     <Target Name="AfterBuild">
-        <Copy SourceFiles="@(Dlls)" DestinationFolder="$(SolutionDir)\scripts\GetParameter"/>
+        <Copy SourceFiles="@(Dlls)" DestinationFolder="$(SolutionDir)\scripts\GetParameter" />
     </Target>
 </Project>
