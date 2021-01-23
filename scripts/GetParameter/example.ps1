@@ -8,6 +8,5 @@ Get-Parameter @(
 New-CheckBox "Toggle"
 New-TextBox "Name"
 New-TextBox "IntValue"
-#New-ComboBox "Date" -ItemsSource { Get-Date }
 New-ComboBox "Process" -DisplayMemberPath "Name" -ItemsSource { Get-Process -Name *powershell* }
 ) | foreach { Test-Cmdlet @_ }

@@ -1,23 +1,22 @@
-function Test-Cmdlet {
+ function Test-Cmdlet {
     [CmdletBinding()]
     param (
         [string] $Name,
         [int] $IntValue,
-        [System.DateTime] $Date,
         [System.Diagnostics.Process] $Process,
         [switch] $Toggle
     )
     
     begin {
-        Write-Host "[Begin] Name: $Name IntValue: $IntValue Date: $Date Process $Process Toggle: $Toggle" -ForegroundColor Magenta
+        Write-Host "[Begin] Name: $Name IntValue: $IntValue Process $Process Toggle: $Toggle" -ForegroundColor Magenta
     }
     
     process {
-        Write-Host "[Processing] Name: $Name IntValue: $IntValue Date: $Date Process $Process Toggle: $Toggle" -ForegroundColor Magenta
+        Write-Host "[Processing] Name: $Name IntValue: $IntValue Process $Process Toggle: $Toggle" -ForegroundColor Magenta
     }
     
     end {
-        Write-Host "[End] Name: $Name IntValue: $IntValue Date: $Date Process $Process Toggle: $Toggle" -ForegroundColor Magenta
+        Write-Host "[End] Name: $Name IntValue: $IntValue Process $Process Toggle: $Toggle" -ForegroundColor Magenta
     }
 }
 
