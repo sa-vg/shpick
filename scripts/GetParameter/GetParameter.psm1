@@ -85,7 +85,10 @@ function Get-Parameter
         {
             try
             {
-                return $pickedParameters
+                foreach( $parameterSet in $pickedParameters){
+                    Write-Verbose ($parameterSet | Out-String)
+                    Write-Output $parameterSet
+                }
                 Write-Host "Window closed"
             }
             catch

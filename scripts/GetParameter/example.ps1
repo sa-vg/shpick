@@ -4,7 +4,7 @@ $ErrorActionPreference = "Stop"
 Import-Module $PSScriptRoot/GetParameter.psm1
 Import-Module $PSScriptRoot/Test-Cmdlet.ps1
 
-Get-Parameter @(
+Get-Parameter -Verbose @(
 New-CheckBox "Toggle"
 New-TextBox "Name"
 New-TextBox "IntValue"
