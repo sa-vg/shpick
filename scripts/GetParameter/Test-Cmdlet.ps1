@@ -8,14 +8,17 @@
     )
     
     begin {
-        Write-Host "[Begin] Name: $Name IntValue: $IntValue Process $Process Toggle: $Toggle" -ForegroundColor Magenta
+        Write-Debug "TestCmdlet begin"
+        Write-Host " $($Name.GetType()) $Name"
     }
     
     process {
+        Write-Debug "TestCmdlet process"
         Write-Host "[Processing] Name: $Name IntValue: $IntValue Process $Process Toggle: $Toggle" -ForegroundColor Magenta
     }
     
     end {
+        Write-Debug "TestCmdlet end"
         Write-Host "[End] Name: $Name IntValue: $IntValue Process $Process Toggle: $Toggle" -ForegroundColor Magenta
     }
 }

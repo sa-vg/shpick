@@ -1,8 +1,9 @@
-﻿$DebugPreference = "Continue"
-$ErrorActionPreference = "Stop"
-
-Import-Module $PSScriptRoot/GetParameter.psm1
+﻿Import-Module $PSScriptRoot/GetParameter.psm1
 Import-Module $PSScriptRoot/Test-Cmdlet.ps1
+
+#$DebugPreference = "Continue"
+$VerbosePreference = "Continue"
+$ErrorActionPreference = "Stop"
 
 Get-Parameter -Verbose @(
 New-CheckBox "Toggle"

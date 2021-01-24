@@ -32,11 +32,14 @@ function New-ComboBox()
         [ScriptBlock] $ItemsSource
     )
 
-    return [Shpick.Models.ComboBoxSpec]@{
+    $comboBox = [Shpick.Models.ComboBoxSpec]@{
         Name = $Name;
         ItemsSource = $ItemsSource.Invoke();
         DisplayMemberPath = $DisplayMemberPath
     }
+
+    Write-Verbose ($comboBox | Out-String)
+    return $comboBox
 }
 
 function Open-WindowRunspace()
@@ -56,15 +59,24 @@ function Get-Parameter
         [Shpick.Models.IParameterSpec[]] $Parameters
     )
 
-    process{
+    begin{
         $pickedParameters = [Shpick.Models.ParameterStream]::new()
 
         $script = {
             param(
-                $specs,
-                $stream
+                [Shpick.Models.IParameterSpec[]] $specs,
+                [Shpick.Models.ParameterStream] $stream
             )
-            $picker = [Shpick.Wpf.ParametersPicker]::new($specs, $stream)
+            try
+            {
+                $picker = [Shpick.Wpf.ParametersPicker]::new($specs, $stream)
+            }
+            catch
+            {
+                $_ | Write-Error
+                $stream.Close()
+            }
+
         }
 
         $ps = [PowerShell]::Create().
@@ -76,27 +88,34 @@ function Get-Parameter
         $ps.Runspace = $runspace
         $asyncResult = $ps.BeginInvoke()
 
-        start-sleep -seconds 1
+        # TODO: wait event
+        Start-Sleep -Seconds 1
+
         if ($ps.HadErrors)
         {
-            $ps.Streams.Error | Out-String | Write-host
-        }
-        else
-        {
-            try
-            {
-                foreach( $parameterSet in $pickedParameters){
-                    Write-Verbose ($parameterSet | Out-String)
-                    Write-Output $parameterSet
-                }
-                Write-Host "Window closed"
-            }
-            catch
-            {
-                $error | Out-String | Write-host
-                $ps.Dispose()
-            }
+            Write-Host "Failed to open window"
+            $ps.Streams.Error | Write-Error
         }
     }
-    
+
+    process{
+        try
+        {
+            foreach ($parameterSet in $pickedParameters)
+            {
+                Write-Verbose ($parameterSet | Out-String)
+                Write-Output $parameterSet
+            }
+            Write-Host "Window closed"
+        }
+        catch
+        {
+            $_ | Write-Error
+        }
+    }
+
+    end{
+        Write-Debug "End processing"
+        $ps.Dispose()
+    }
 }
