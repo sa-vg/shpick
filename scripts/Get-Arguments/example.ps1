@@ -1,11 +1,11 @@
-﻿Import-Module $PSScriptRoot/GetParameter.psm1
+﻿Import-Module $PSScriptRoot/Get-Arguments.psm1
 Import-Module $PSScriptRoot/Test-Cmdlet.ps1
 
 #$DebugPreference = "Continue"
 $VerbosePreference = "Continue"
 $ErrorActionPreference = "Stop"
 
-Get-Parameter -Verbose @(
+Get-Arguments -Verbose @(
 checkBox Toggle
 textBox Name
 textBox IntValue

@@ -56,7 +56,7 @@ function Open-WindowRunspace()
     return $runspace
 }
 
-function Get-Parameter
+function Get-Arguments
 {
     [CmdletBinding()]
     param (
