@@ -6,8 +6,8 @@ $VerbosePreference = "Continue"
 $ErrorActionPreference = "Stop"
 
 Get-Parameter -Verbose @(
-New-CheckBox "Toggle"
-New-TextBox "Name"
-New-TextBox "IntValue"
-New-ComboBox "Process" -DisplayMemberPath "Name" -ItemsSource { Get-Process -Name *powershell* }
+checkBox Toggle
+textBox Name
+textBox IntValue
+comboBox Process { Get-Process -Name *powershell* } -DisplayMemberPath "Name" 
 ) | foreach { Test-Cmdlet @_ }

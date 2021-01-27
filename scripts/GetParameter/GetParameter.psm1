@@ -28,8 +28,9 @@ function New-ComboBox()
     param(
         [Parameter(Position = 1, ValueFromPipeline)]
         [string] $Name,
-        [string] $DisplayMemberPath,
-        [ScriptBlock] $ItemsSource
+        [Parameter(Position = 2)]
+        [ScriptBlock] $ItemsSource,
+        [string] $DisplayMemberPath
     )
 
     $comboBox = [Shpick.Models.ComboBoxSpec]@{
@@ -41,6 +42,10 @@ function New-ComboBox()
     Write-Verbose ($comboBox | Out-String)
     return $comboBox
 }
+
+Set-Alias -Name checkBox -Value New-CheckBox
+Set-Alias -Name textBox -Value New-TextBox
+Set-Alias -Name comboBox -Value New-ComboBox
 
 function Open-WindowRunspace()
 {
