@@ -69,6 +69,6 @@
         <Dlls Include="$(TargetDir)*.dll" />
     </ItemGroup>
     <Target Name="AfterBuild">
-        <Copy SourceFiles="@(Dlls)" DestinationFolder="$(SolutionDir)\scripts\GetParameter" />
+        <Copy SourceFiles="@(Dlls)" DestinationFolder="$(SolutionDir)\scripts\Get-Arguments" />
     </Target>
 </Project>
